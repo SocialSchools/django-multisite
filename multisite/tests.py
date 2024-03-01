@@ -27,7 +27,7 @@ except ImportError:
     from unittest import mock
 
 from django.conf import settings
-from django.conf.urls import url
+from django.urls import path
 from django.contrib.sites.models import Site
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.management import call_command
@@ -77,7 +77,7 @@ class TestContribSite(TestCase):
 # So create one:
 # (This is only used by test_integration)
 urlpatterns = [
-    url(r'^domain/$', lambda request, *args, **kwargs: HttpResponse(str(Site.objects.get_current())))
+    path('domain/', lambda request, *args, **kwargs: HttpResponse(str(Site.objects.get_current())))
 ]
 
 @pytest.mark.django_db
@@ -201,12 +201,12 @@ class DynamicSiteMiddlewareTest(TestCase):
         """
         Test that the middleware loads and runs properly under settings.MIDDLEWARE.
         """
-        resp = self.client.get('/domain/', HTTP_HOST=self.host)
+        resp = self.client.get('/domain/', headers={"host": self.host})
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, self.site.domain)
         self.assertEqual(settings.SITE_ID, self.site.pk)
 
-        resp = self.client.get('/domain/', HTTP_HOST=self.site2.domain)
+        resp = self.client.get('/domain/', headers={"host": self.site2.domain})
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, self.site2.domain)
         self.assertEqual(settings.SITE_ID, self.site2.pk)
@@ -993,28 +993,21 @@ class TestCookieDomainMiddleware(TestCase):
             self.assertEqual(cookies['a']['domain'], '.extrahost.com')
 
 
-if django.VERSION < (1, 8):
-    TEMPLATE_SETTINGS = {
-        'TEMPLATE_LOADERS': ['multisite.template.loaders.filesystem.Loader'],
-        'TEMPLATE_DIRS': [os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                                  'test_templates')]
+TEMPLATE_SETTINGS = {'TEMPLATES':[
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                         'test_templates')
+        ],
+        'OPTIONS': {
+            'loaders': [
+                'multisite.template.loaders.filesystem.Loader',
+            ]
+        },
     }
-else:
-    TEMPLATE_SETTINGS = {'TEMPLATES':[
-        {
-            'BACKEND': 'django.template.backends.django.DjangoTemplates',
-            'DIRS': [
-                os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                             'test_templates')
-            ],
-            'OPTIONS': {
-                'loaders': [
-                    'multisite.template.loaders.filesystem.Loader',
-                ]
-            },
-        }
-    ]
-    }
+]
+}
 
 
 @override_settings(

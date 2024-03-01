@@ -15,7 +15,7 @@ from django.db.models.signals import post_migrate
 from .hacks import use_framework_for_site_cache
 
 if django.VERSION < (2,):
-    from django.utils.translation import ugettext_lazy as _
+    from django.utils.translation import gettext_lazy as _
 else:
     from django.utils.translation import gettext_lazy as _
 

@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.sites import managers
-from django.db.models.fields import FieldDoesNotExist
+from django.core.exceptions import FieldDoesNotExist
 from django.db.models.sql import constants
 
 

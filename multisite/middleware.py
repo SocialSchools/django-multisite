@@ -25,7 +25,7 @@ try:
     from django.urls import get_callable
 except ImportError:
     # Django < 1.10 compatibility
-    from django.core.urlresolvers import get_callable
+    from django.urls import get_callable
 
 from django.db.models.signals import pre_save, post_delete, post_init
 from django.http import Http404, HttpResponsePermanentRedirect
@@ -138,12 +138,6 @@ class DynamicSiteMiddleware(MiddlewareMixin):
         else:
             try:
                 view = get_callable(fallback)
-                if django.VERSION < (1,8):
-                    # older django's get_callable falls through on error,
-                    # returning the input as output
-                    # which notably is definitely not a callable here
-                    if not callable(view):
-                        raise ImportError()
             except ImportError:
                 # newer django forces this to be an error, which is tidier.
                 # we rewrite the error to be a bit more helpful to our users.
