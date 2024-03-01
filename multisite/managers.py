@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*
-from __future__ import unicode_literals
-from __future__ import absolute_import
-
 from django.db import models
 from django.contrib.sites import managers
 from django.db.models.fields import FieldDoesNotExist

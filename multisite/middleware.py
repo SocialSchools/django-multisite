@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-from __future__ import absolute_import
-
 import os
 import tempfile
 try:
@@ -41,7 +37,7 @@ from .models import Alias
 
 class DynamicSiteMiddleware(MiddlewareMixin):
     def __init__(self, *args, **kwargs):
-        super(DynamicSiteMiddleware, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if not hasattr(settings.SITE_ID, 'set'):
             raise TypeError('Invalid type for settings.SITE_ID: %s' %
                             type(settings.SITE_ID).__name__)
@@ -63,7 +59,7 @@ class DynamicSiteMiddleware(MiddlewareMixin):
     def get_cache_key(self, netloc):
         """Returns a cache key based on ``netloc``."""
         netloc = md5_constructor(netloc.encode('utf-8'))
-        return 'multisite.alias.%s.%s' % (self.key_prefix,
+        return 'multisite.alias.{}.{}'.format(self.key_prefix,
                                           netloc.hexdigest())
 
     def netloc_parse(self, netloc):
@@ -223,7 +219,7 @@ class DynamicSiteMiddleware(MiddlewareMixin):
 
 class CookieDomainMiddleware(MiddlewareMixin):
     def __init__(self, *args, **kwargs):
-        super(CookieDomainMiddleware, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.depth = int(getattr(settings, 'MULTISITE_COOKIE_DOMAIN_DEPTH', 0))
         if self.depth < 0:
             raise ValueError(

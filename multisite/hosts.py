@@ -1,6 +1,3 @@
-from __future__ import unicode_literals
-from __future__ import absolute_import
-
 from django.utils.functional import empty, SimpleLazyObject
 
 
@@ -19,7 +16,7 @@ class IterableLazyObject(SimpleLazyObject):
         return self._wrapped.__iter__()
 
 
-class AllowedHosts(object):
+class AllowedHosts:
 
     alias_model = None
 

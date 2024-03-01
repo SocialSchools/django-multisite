@@ -1,6 +1,3 @@
-from __future__ import unicode_literals
-from __future__ import absolute_import
-
 from django.contrib import admin
 from django.contrib.admin.views.main import ChangeList
 from django.contrib.sites.models import Site
@@ -56,7 +53,7 @@ class MultisiteChangeList(ChangeList):
         This might be considered a fragile function, since it relies on a
         fair bit of Django's internals.
         """
-        get_filters = super(MultisiteChangeList, self).get_filters
+        get_filters = super().get_filters
         filter_specs, has_filter_specs = get_filters(request, *args, **kwargs)
         if request.user.is_superuser or not has_filter_specs:
             return filter_specs, has_filter_specs
@@ -108,7 +105,7 @@ class MultisiteModelAdmin(admin.ModelAdmin):
 
         (As long as you're not a superuser)
         """
-        qs = super(MultisiteModelAdmin, self).queryset(request)
+        qs = super().queryset(request)
         if request.user.is_superuser:
             return qs
 
@@ -121,7 +118,7 @@ class MultisiteModelAdmin(admin.ModelAdmin):
         if hasattr(self, "multisite_filter_fields"):
             for field in self.multisite_filter_fields:
                 qkwargs = {
-                    "{field}__in".format(field=field): user_sites
+                    f"{field}__in": user_sites
                 }
                 qs = qs.filter(**qkwargs)
 
@@ -131,7 +128,7 @@ class MultisiteModelAdmin(admin.ModelAdmin):
         if self.filter_sites_by_current_object:
             if hasattr(self.model, "site") or hasattr(self.model, "sites"):
                 self.object_sites = tuple()
-        return super(MultisiteModelAdmin, self).add_view(request, form_url,
+        return super().add_view(request, form_url,
                                                          extra_context)
 
     def change_view(self, request, object_id, extra_context=None):
@@ -146,7 +143,7 @@ class MultisiteModelAdmin(admin.ModelAdmin):
                     self.object_sites = (object_instance.site.pk,)
                 except AttributeError:
                     pass  # assume the object doesn't belong to a site
-        return super(MultisiteModelAdmin, self).change_view(request, object_id,
+        return super().change_view(request, object_id,
                                                             extra_context)
 
     def handle_multisite_foreign_keys(self, db_field, request, **kwargs):
@@ -222,14 +219,14 @@ class MultisiteModelAdmin(admin.ModelAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         kwargs = self.handle_multisite_foreign_keys(db_field, request,
                                                     **kwargs)
-        return super(MultisiteModelAdmin, self).formfield_for_foreignkey(
+        return super().formfield_for_foreignkey(
             db_field, request, **kwargs
         )
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         kwargs = self.handle_multisite_foreign_keys(db_field, request,
                                                     **kwargs)
-        return super(MultisiteModelAdmin, self).formfield_for_manytomany(
+        return super().formfield_for_manytomany(
             db_field, request, **kwargs
         )
 

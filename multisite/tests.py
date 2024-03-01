@@ -10,8 +10,6 @@ from the parent directory.
 This file uses relative imports and so cannot be run standalone.
 """
 
-from __future__ import unicode_literals
-from __future__ import absolute_import
 
 import django
 import logging
@@ -20,13 +18,13 @@ import pytest
 import sys
 import tempfile
 import warnings
-from six import StringIO
+from io import StringIO
 from unittest import skipUnless
 
 try:
     from unittest import mock
 except ImportError:
-    import mock
+    from unittest import mock
 
 from django.conf import settings
 from django.conf.urls import url
@@ -48,13 +46,13 @@ from .models import Alias
 
 class RequestFactory(DjangoRequestFactory):
     def __init__(self, host):
-        super(RequestFactory, self).__init__()
+        super().__init__()
         self.host = host
 
     def get(self, path, data={}, host=None, **extra):
         if host is None:
             host = self.host
-        return super(RequestFactory, self).get(path=path, data=data,
+        return super().get(path=path, data=data,
                                                HTTP_HOST=host, **extra)
 
 @pytest.mark.django_db
@@ -429,7 +427,7 @@ class SiteCacheTest(TestCase):
         self.assertEqual(self.cache[self.site.id], self.site)
         self.assertEqual(
             self.cache._cache._get_cache_key(self.site.id),
-            "sites.looselycoupled.{}".format(self.site.id)
+            f"sites.looselycoupled.{self.site.id}"
         )
 
     @override_settings(
@@ -442,7 +440,7 @@ class SiteCacheTest(TestCase):
         self.assertEqual(self.cache[self.site.id], self.site)
         self.assertEqual(
             self.cache._cache._get_cache_key(self.site.id),
-            "sites.virtuouslyvirtual.{}".format(self.site.id)
+            f"sites.virtuouslyvirtual.{self.site.id}"
         )
 
 
@@ -599,17 +597,17 @@ class AliasTest(TestCase):
     def test_repr(self):
         site = Site.objects.create(domain='example.com')
         self.assertEqual(repr(Alias.objects.get(site=site)),
-                         u'<Alias: %(domain)s -> %(domain)s>' % site.__dict__)
+                         '<Alias: %(domain)s -> %(domain)s>' % site.__dict__)
 
     def test_managers(self):
         site = Site.objects.create(domain='example.com')
         Alias.objects.create(site=site, domain='example.org')
         self.assertEqual(set(Alias.objects.values_list('domain', flat=True)),
-                         set(['example.com', 'example.org']))
+                         {'example.com', 'example.org'})
         self.assertEqual(set(Alias.canonical.values_list('domain', flat=True)),
-                         set(['example.com']))
+                         {'example.com'})
         self.assertEqual(set(Alias.aliases.values_list('domain', flat=True)),
-                         set(['example.org']))
+                         {'example.org'})
 
     def test_sync_many(self):
         # Create Sites with Aliases
@@ -620,7 +618,7 @@ class AliasTest(TestCase):
         site3 = Site(domain='3.example.com')
         site3.save_base(raw=True)
         self.assertEqual(set(Alias.objects.values_list('domain', flat=True)),
-                         set([site1.domain, site2.domain]))
+                         {site1.domain, site2.domain})
         # Sync existing
         site1.domain = '1.example.org'
         site1.save_base(raw=True)
@@ -628,7 +626,7 @@ class AliasTest(TestCase):
         site2.save_base(raw=True)
         Alias.canonical.sync_many()
         self.assertEqual(set(Alias.objects.values_list('domain', flat=True)),
-                         set([site1.domain, site2.domain]))
+                         {site1.domain, site2.domain})
         # Sync with filter
         site1.domain = '1.example.net'
         site1.save_base(raw=True)
@@ -636,7 +634,7 @@ class AliasTest(TestCase):
         site2.save_base(raw=True)
         Alias.canonical.sync_many(site__domain=site1.domain)
         self.assertEqual(set(Alias.objects.values_list('domain', flat=True)),
-                         set([site1.domain, '2.example.org']))
+                         {site1.domain, '2.example.org'})
 
     def test_sync_missing(self):
         Site.objects.create()
@@ -650,7 +648,7 @@ class AliasTest(TestCase):
         # Only site2 should be updated
         Alias.canonical.sync_missing()
         self.assertEqual(set(Alias.objects.values_list('domain', flat=True)),
-                         set(['1.example.com', site2.domain]))
+                         {'1.example.com', site2.domain})
 
     def test_sync_all(self):
         Site.objects.create()
@@ -664,7 +662,7 @@ class AliasTest(TestCase):
         # Sync all
         Alias.canonical.sync_all()
         self.assertEqual(set(Alias.objects.values_list('domain', flat=True)),
-                         set([site1.domain, site2.domain]))
+                         {site1.domain, site2.domain})
 
     def test_sync(self):
         # Create Site without triggering signals
@@ -1092,6 +1090,6 @@ class UpdatePublicSuffixListCommandTestCase(TestCase):
         self.tldextract().update.side_effect = self.tldextract_update_side_effect
 
         call_command('update_public_suffix_list', verbosity=3)
-        update_message = 'Updating {}'.format(self.cache_file)
+        update_message = f'Updating {self.cache_file}'
         self.assertIn(update_message, self.out.getvalue())
         self.assertIn('TLDExtract.update called', self.out.getvalue())

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*
-
 from django.apps import AppConfig
 from django.core.checks import register, Tags
 
@@ -11,5 +9,5 @@ class MultiSiteConfig(AppConfig):
     name = 'multisite'
 
     def ready(self):
-        super(MultiSiteConfig, self).ready()
+        super().ready()
         register(check_site_id, Tags.sites)

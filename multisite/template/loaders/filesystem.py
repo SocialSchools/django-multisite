@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-from __future__ import absolute_import
-
 import os
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -21,5 +17,4 @@ class Loader(FilesystemLoader):
                 args = [tname, None]
             else:
                 args = [tname]
-            for item in super(Loader, self).get_template_sources(*args, **kwargs):
-                yield item
+            yield from super().get_template_sources(*args, **kwargs)
